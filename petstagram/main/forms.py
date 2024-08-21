@@ -3,66 +3,23 @@ from datetime import date
 from django import forms
 from django.core.exceptions import ValidationError
 
-from petstagram.main.helpers import BootstrapFormMixin, DisabledFieldsFormMixin
-from petstagram.main.models import Profile, PetPhoto, Pet
-
-
-class ProfileForm(BootstrapFormMixin, forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._init_bootstrap_form_controls()
-
-    class Meta:
-        model = Profile
-        fields = ('first_name', 'last_name', 'picture')
-        widgets = {
-            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter first Name'}),
-            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter last Name'}),
-            'picture': forms.TextInput(attrs={'class': 'form-control',  'placeholder': 'Enter URL'}),
-        }
-
-
-class EditProfileForm(BootstrapFormMixin, forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._init_bootstrap_form_controls()
-        self.initial['gender'] = Profile.DO_NOT_SHOW
-        self.fields['date_of_birth'].input_type = 'date'
-
-    class Meta:
-        model = Profile
-        fields = '__all__'
-
-        widgets = {
-            'first_name': forms.TextInput(attrs={'placeholder': 'Enter first Name'}),
-            'last_name': forms.TextInput(attrs={'placeholder': 'Enter last Name'}),
-            'picture': forms.TextInput(attrs={'placeholder': 'Enter URL'}),
-            'email': forms.EmailInput(attrs={'placeholder': 'Enter Email'}),
-            'description': forms.Textarea(attrs={'placeholder': 'Enter description', 'rows': 2}),
-            'date_of_birth': forms.DateInput(attrs={'min': '1920-01-01'}),
-
-        }
-
-
-class DeleteProfileForm(forms.ModelForm):
-
-    def save(self, commit=True):
-        pets = list(self.instance.pet_set.all())
-        PetPhoto.objects.filter(tagged_pets__in=pets).delete()
-        self.instance.delete()
-
-        return self.instance
-
-    class Meta:
-        model = Profile
-        fields = ()
-        # exclude = ('first_name', 'last_name', 'picture', 'email', 'date_of_birth', 'description', 'gender')
+from petstagram.common.helpers import BootstrapFormMixin, DisabledFieldsFormMixin
+from petstagram.main.models import Pet
 
 
 class CreatePetForm(BootstrapFormMixin, forms.ModelForm):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user = user
         self._init_bootstrap_form_controls()
+
+    def save(self, commit=True):
+        pet = super().save(commit=False)
+
+        pet.user = self.user
+        if commit:
+            pet.save()
+        return pet
 
     class Meta:
         model = Pet
