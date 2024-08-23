@@ -6,18 +6,15 @@ from django.template.context_processors import media
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
+APP_ENVIRONMENT = os.getenv('APP_ENVIRONMENT')
+print(APP_ENVIRONMENT)
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-l0bd@yigd_w3^!75ax)tt$^au(fffnnu_48#b8e4jd*n1mg27c'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
-print(DEBUG)
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    'petstagram-2024-12c4cdf77528.herokuapp.com'
-]
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
 
 DJANGO_APPS = (
     'django.contrib.admin',
@@ -55,8 +52,7 @@ ROOT_URLCONF = 'petstagram.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -75,20 +71,28 @@ WSGI_APPLICATION = 'petstagram.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'd2n5pukivg507c',
-        'USER': 'u4cfar64lt96r0',
-        'PASSWORD': 'pb3c57fb280ed264fe744c958552ac76fdbf685b535874476cd502f3f1e6ed91f',
-        'HOST': 'c724r43q8jp5nk.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com',
-        'PORT': '5432',
+DATABASES = None
+
+if APP_ENVIRONMENT == 'Production':
+    DATABASES = {
+
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': 'd2n5pukivg507c',
+                'USER': 'u4cfar64lt96r0',
+                'PASSWORD': 'pb3c57fb280ed264fe744c958552ac76fdbf685b535874476cd502f3f1e6ed91f',
+                'HOST': 'c724r43q8jp5nk.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com',
+                'PORT': '5432',
+            },
+        }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'db.sqlite3',
+        }
     }
-}
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
+print(DATABASES)
 
 AUTH_PASSWORD_VALIDATORS = [
     {
