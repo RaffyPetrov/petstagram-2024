@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 from django.template.context_processors import media
@@ -9,7 +10,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-l0bd@yigd_w3^!75ax)tt$^au(fffnnu_48#b8e4jd*n1mg27c'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
+print(DEBUG)
 
 ALLOWED_HOSTS = [
     'localhost',
