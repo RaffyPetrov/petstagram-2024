@@ -3,14 +3,16 @@ from pathlib import Path
 
 from django.template.context_processors import media
 
+from petstagram.utils import is_production
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 APP_ENVIRONMENT = os.getenv('APP_ENVIRONMENT')
-print(APP_ENVIRONMENT)
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-l0bd@yigd_w3^!75ax)tt$^au(fffnnu_48#b8e4jd*n1mg27c'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
@@ -71,44 +73,44 @@ WSGI_APPLICATION = 'petstagram.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = None
+DEFAULT_DATABASE_CONFIG = {
+    'ENGINE': 'django.db.backends.sqlite3',
+    'NAME': 'db.sqlite3',
+}
 
-if APP_ENVIRONMENT == 'Production':
-    DATABASES = {
-
-            'default': {
+if is_production():
+    DEFAULT_DATABASE_CONFIG = {
                 'ENGINE': 'django.db.backends.postgresql',
-                'NAME': 'd2n5pukivg507c',
-                'USER': 'u4cfar64lt96r0',
-                'PASSWORD': 'pb3c57fb280ed264fe744c958552ac76fdbf685b535874476cd502f3f1e6ed91f',
-                'HOST': 'c724r43q8jp5nk.cluster-czz5s0kz4scl.eu-west-1.rds.amazonaws.com',
-                'PORT': '5432',
+                'HOST': os.getenv('DB_HOST'),
+                'PORT': os.getenv('DB_PORT', '5432'),
+                'NAME': os.getenv('DB_NAME'),
+                'USER': os.getenv('DB_USER'),
+                'PASSWORD': os.getenv('DB_PASSWORD'),
             },
-        }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'db.sqlite3',
-        }
-    }
-print(DATABASES)
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
+DATABASES = {
+    'default': DEFAULT_DATABASE_CONFIG,
+}
 
+
+AUTH_PASSWORD_VALIDATORS = []
+
+if is_production():
+
+     AUTH_PASSWORD_VALIDATORS = [
+             {
+                 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+             },
+             {
+                 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+             },
+             {
+                 'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+             },
+             {
+                 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+             },
+     ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
@@ -134,5 +136,27 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+LOGGING_LEVEL = 'DEBUG'
+
+if is_production():
+    LOGGING_LEVEL = 'INFO'
+
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'level': LOGGING_LEVEL,
+            'filters': [],
+            'class': 'logging.StreamHandler',
+
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': LOGGING_LEVEL,
+            'handlers': ['console'],
+        }
+    }
+}
 
 AUTH_USER_MODEL = 'accounts.PetstagramUser'
