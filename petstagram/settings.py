@@ -1,5 +1,9 @@
 import os
 from pathlib import Path
+import cloudinary
+import cloudinary.uploader
+from cloudinary.utils import cloudinary_url
+
 
 from django.template.context_processors import media
 
@@ -12,11 +16,11 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 APP_ENVIRONMENT = os.getenv('APP_ENVIRONMENT')
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY', '')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(' ')
 
 DJANGO_APPS = (
     'django.contrib.admin',
@@ -81,11 +85,11 @@ DEFAULT_DATABASE_CONFIG = {
 if is_production():
     DEFAULT_DATABASE_CONFIG = {
                 'ENGINE': 'django.db.backends.postgresql',
-                'HOST': os.getenv('DB_HOST'),
+                'HOST': os.getenv('DB_HOST', 'localhost'),
                 'PORT': os.getenv('DB_PORT', '5432'),
-                'NAME': os.getenv('DB_NAME'),
-                'USER': os.getenv('DB_USER'),
-                'PASSWORD': os.getenv('DB_PASSWORD'),
+                'NAME': os.getenv('DB_NAME', 'petstagram'),
+                'USER': os.getenv('DB_USER', 'postgres'),
+                'PASSWORD': os.getenv('DB_PASSWORD', 'mysecretpassword'),
             }
 
 DATABASES = {
@@ -125,14 +129,16 @@ USE_TZ = True
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATIC_URL = '/static/'
-STATICFILES_DIR = (
+
+STATICFILES_DIRS = (
     BASE_DIR / 'static',
 )
 
-MEDIA_ROOT = BASE_DIR / 'mediafiles'
-MEDIA_URL = '/media/'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MEDIA_ROOT = BASE_DIR / 'mediafiles'
+MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -160,3 +166,10 @@ LOGGING = {
 }
 
 AUTH_USER_MODEL = 'accounts.PetstagramUser'
+
+cloudinary.config(
+    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME', None),
+    api_key=os.getenv('CLOUDINARY_API_KEY', None),
+    api_secret=os.getenv('CLOUDINARY_API_SECRET', None),
+    secure=True
+)

@@ -2,8 +2,9 @@ from datetime import datetime
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
-
+from cloudinary import models as cloudinary_models
 from django.db import models
+
 
 from petstagram.accounts.models import PetstagramUser
 
@@ -53,10 +54,8 @@ class Pet(models.Model):
 
 
 class PetPhoto(models.Model):
-    photo = models.ImageField(
-        validators=(
-        )
-    )
+
+    photo = cloudinary_models.CloudinaryField('image')
 
     description = models.TextField(
         null=True,
