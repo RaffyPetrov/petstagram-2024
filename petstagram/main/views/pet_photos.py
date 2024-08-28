@@ -1,4 +1,4 @@
-from django.contrib.auth import mixins as auth_mixins
+from django.contrib.auth import mixins as auth_mixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views import generic as views
@@ -14,7 +14,7 @@ from petstagram.main.models import PetPhoto
 #     return render(request, 'main/photo_details.html', context)
 
 
-class PetPhotoDetailsView(auth_mixins.LoginRequiredMixin, views.DetailView):
+class PetPhotoDetailsView(auth_mixin.LoginRequiredMixin, views.DetailView):
     model = PetPhoto
     template_name = 'main/photo_details.html'
     context_object_name = 'pet_photo'
@@ -30,7 +30,7 @@ class PetPhotoDetailsView(auth_mixins.LoginRequiredMixin, views.DetailView):
         return context
 
 
-class CreatePetPhotoView(auth_mixins.LoginRequiredMixin, views.CreateView):
+class CreatePetPhotoView(auth_mixin.LoginRequiredMixin, views.CreateView):
     model = PetPhoto
     template_name = 'main/photo_create.html'
     fields = ('photo', 'description', 'tagged_pets')
@@ -48,7 +48,7 @@ class CreatePetPhotoView(auth_mixins.LoginRequiredMixin, views.CreateView):
 class EditPetPhotoView(views.UpdateView):
     model = PetPhoto
     template_name = 'main/photo_edit.html'
-    fields = ('photo', 'description', 'tagged_pets')
+    fields = ('description', )
 
     def get_success_url(self):
         return reverse_lazy('pet photo details', kwargs={'pk': self.object.id})

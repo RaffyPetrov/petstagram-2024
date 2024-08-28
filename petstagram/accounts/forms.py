@@ -31,7 +31,7 @@ class ProfileForm(BootstrapFormMixin, auth_forms.UserCreationForm):
             email=self.cleaned_data['email'],
             gender=self.cleaned_data['gender'],
 
-            user=user
+            user=user,
         )
 
         if commit:

@@ -6,7 +6,7 @@ class PetstagramUserManager(auth_base.BaseUserManager):
     def _create_user(self, username, password, **extra_fields):
 
         if not username:
-            raise ValueError("The given username must be set")
+            raise ValueError('The given username must be set')
 
         user = self.model(username=username, **extra_fields)
         user.password = make_password(password)

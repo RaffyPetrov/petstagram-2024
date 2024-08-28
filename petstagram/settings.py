@@ -7,16 +7,16 @@ from cloudinary.utils import cloudinary_url
 
 from django.template.context_processors import media
 
-from petstagram.utils import is_production
+from petstagram.utils import is_production, is_test
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
-APP_ENVIRONMENT = os.getenv('APP_ENVIRONMENT')
+APP_ENVIRONMENT = os.getenv('APP_ENVIRONMENT', 'Development')
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY', '')
+SECRET_KEY = os.getenv('SECRET_KEY', 'sk')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
@@ -51,6 +51,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'petstagram.common.middlewares.count_user_clicks_middleware',
+    'petstagram.common.middlewares.last_viewed_pet_photos_middleware',
 ]
 
 ROOT_URLCONF = 'petstagram.urls'
@@ -73,24 +75,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'petstagram.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
 DEFAULT_DATABASE_CONFIG = {
-    'ENGINE': 'django.db.backends.sqlite3',
-    'NAME': 'db.sqlite3',
-}
 
-if is_production():
-    DEFAULT_DATABASE_CONFIG = {
-                'ENGINE': 'django.db.backends.postgresql',
-                'HOST': os.getenv('DB_HOST', 'localhost'),
-                'PORT': os.getenv('DB_PORT', '5432'),
-                'NAME': os.getenv('DB_NAME', 'petstagram'),
-                'USER': os.getenv('DB_USER', 'postgres'),
-                'PASSWORD': os.getenv('DB_PASSWORD', 'mysecretpassword'),
-            }
+    'ENGINE': 'django.db.backends.postgresql',
+    'HOST': os.getenv('DB_HOST', 'localhost'),
+    'PORT': os.getenv('DB_PORT', '5432'),
+    'NAME': os.getenv('DB_NAME', 'petstagram'),
+    'USER': os.getenv('DB_USER', 'postgres'),
+    'PASSWORD': os.getenv('DB_PASSWORD', 'mysecretpassword'),
+}
 
 DATABASES = {
     'default': DEFAULT_DATABASE_CONFIG,
@@ -100,8 +93,7 @@ DATABASES = {
 AUTH_PASSWORD_VALIDATORS = []
 
 if is_production():
-
-     AUTH_PASSWORD_VALIDATORS = [
+     AUTH_PASSWORD_VALIDATORS.extend = ([
              {
                  'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
              },
@@ -114,10 +106,7 @@ if is_production():
              {
                  'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
              },
-     ]
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.0/topics/i18n/
+     ])
 
 LANGUAGE_CODE = 'en-us'
 
@@ -146,6 +135,8 @@ LOGGING_LEVEL = 'DEBUG'
 
 if is_production():
     LOGGING_LEVEL = 'INFO'
+elif is_test():
+    LOGGING_LEVEL = 'CRITICAL'
 
 LOGGING = {
     'version': 1,

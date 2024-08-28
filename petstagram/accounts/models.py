@@ -7,7 +7,7 @@ from petstagram.accounts.managers import PetstagramUserManager
 from petstagram.common.validators import only_letters_validator
 
 
-class PetstagramUser(auth_models.AbstractUser, auth_models.PermissionsMixin):
+class PetstagramUser(auth_models.AbstractBaseUser, auth_models.PermissionsMixin):
     USERNAME_MAX_LENGTH = 25
 
     username = models.CharField(
